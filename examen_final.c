@@ -83,7 +83,7 @@ int main(int argc, char * argv[])
     tamPool3 = 0;
     tamPool4 = 0;
     
-    if (signal(SIGALRM, gestor) == SIG_ERR) {
+    if (signal(SIGUSR1, gestor) == SIG_ERR) {
         printf("ERROR: No se pudo establecer el manejador de la señal\n");
     }
     
@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
     
     //raise(SIGUSR1);
     //impresionTablero(matrix);
-    kill(Principal, SIGALRM);
+    kill(Principal, SIGUSR1);
     
     for(i=0; i<N; ++i)
         free(*(matrix+i));
