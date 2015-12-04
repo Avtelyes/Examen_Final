@@ -2,8 +2,8 @@
 //  main.c
 //  mpi_basico
 //
-//  Created by Vicente Cubells Nonell on 12/11/15.
-//  Copyright © 2015 Vicente Cubells Nonell. All rights reserved.
+//  Created by Josue Garcia Puig on 4/12/15.
+//  Copyright © 2015 Josue Garcia Puig. All rights reserved.
 //
 
 #include <mpi.h>
