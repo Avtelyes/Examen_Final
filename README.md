@@ -1,3 +1,3 @@
 # Examen_Final
 
-Josue Garcia
+Josue Garcia Puig
