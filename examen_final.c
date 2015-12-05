@@ -12,6 +12,9 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define N 8
 #define CORES 4
@@ -26,6 +29,8 @@ void * procesa_camino(void *);
 int **matrix;
 void encuentraCamino(int, int, int);
 void gestor(int);
+
+pid_t Principal;
 
 int main(int argc, char * argv[])
 {
@@ -59,11 +64,15 @@ int main(int argc, char * argv[])
     srand((int) time(NULL));
     matrix = creacionMatriz();
     
+    if (signal(SIGALRM, gestor) == SIG_ERR) {
+        printf("ERROR: No se pudo establecer el manejador de la señal\n");
+    }
+    
+    Principal = getpid();
+    
     pthread_t * vecinos = (pthread_t *) malloc(sizeof(pthread_t) * CORES);
     cuadrantes = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t) * CORES);
     espera_t = (pthread_cond_t *) malloc(sizeof(pthread_cond_t) * CORES);
-    
-    signal(SIGUSR1, gestor);
     
     int i;
     
@@ -80,12 +89,16 @@ int main(int argc, char * argv[])
         pthread_create(aux, NULL, procesa_camino, (void *) ++indice);
     }
     
+    //pthread_kill(*vecinos, SIGUSR1);
+    
     /* Adjuntar los hilos */
     for (aux = vecinos; aux < (vecinos+CORES); ++aux) {
         pthread_join(*aux, NULL);
     }
     
-    raise(SIGUSR1);
+    //raise(SIGUSR1);
+    //impresionTablero(matrix);
+    kill(Principal, SIGALRM);
     
     for(i=0; i<N; ++i)
         free(*(matrix+i));
@@ -126,24 +139,75 @@ void * procesa_camino(void * arg)
     pthread_exit(NULL);
 }
 
+void * procesa_camino(void * arg)
+{
+    int id = (int) arg;
+    
+    if(id == 1)
+    {
+        
+        pthread_mutex_lock(cuadrantes+1);
+        printf("Hola soy el proceso 1\n");
+        encuentraCamino(0, 0, 4);
+        //impresionTablero(matrix);
+        pthread_mutex_unlock(cuadrantes+1);
+    }
+    else if (id == 2)
+    {
+        pthread_mutex_lock(cuadrantes+2);
+        printf("Hola soy el proceso 2\n");
+        encuentraCamino(0, N/2, 5);
+        //impresionTablero(matrix);
+        pthread_mutex_unlock(cuadrantes+2);
+    }
+    else if (id == 3)
+    {
+        pthread_mutex_lock(cuadrantes+3);
+        printf("Hola soy el proceso 3\n");
+        encuentraCamino(N/2, 0, 3);
+        //impresionTablero(matrix);
+        pthread_mutex_unlock(cuadrantes+3);
+    }
+    else if (id == 4)
+    {
+        pthread_mutex_lock(cuadrantes+4);
+        printf("Hola soy el proceso 4\n");
+        encuentraCamino(N/2, N/2, 6);
+        //impresionTablero(matrix);
+        pthread_mutex_unlock(cuadrantes+4);
+    }
+    
+    pthread_exit(NULL);
+}
+
 void encuentraCamino(int in, int fn, int num)
 {
-    int **inicio = matrix+in;
-    int **fin = (inicio+fn);
+    /*int **inicio = matrix+in;
+     int **fin = (inicio+fn);
+     
+     int *inicio2;
+     int *fin2;
+     
+     for(; inicio<fin; ++inicio)
+     {
+     inicio2 = *inicio+inX;
+     fin2 = (inicio2+inY);
+     for(; inicio2<fin2; ++inicio2)
+     {
+     if(*inicio2 != 1)
+     {
+     *inicio2 = num;
+     }
+     }
+     }*/
     
-    int *inicio2;
-    int *fin2;
-    
-    for(; inicio<fin; ++inicio)
+    int i, j;
+    for(i=0; i<4; ++i)
     {
-        inicio2 = *inicio;
-        fin2 = (inicio2+fn);
-        for(; inicio2<fin2; ++inicio2)
+        for(j=0; j<4; ++j)
         {
-            if(*inicio2 != 1)
-            {
-                *inicio2 = num;
-            }
+            if(*(*(matrix+in+i)+j+fn) != 1)
+                *(*(matrix+in+i)+j+fn) = num;
         }
     }
     
