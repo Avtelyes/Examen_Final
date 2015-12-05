@@ -121,30 +121,6 @@ void * procesa_camino(void * arg)
     
     if(id == 1)
     {
-        pthread_mutex_lock(cuadrantes+1);
-        printf("Hola soy el proceso 1\n");
-        encuentraCamino(0, N/2, 4);
-        impresionTablero(matrix);
-        pthread_mutex_unlock(cuadrantes+1);
-    }
-    else if (id == 2)
-    {
-        pthread_mutex_lock(cuadrantes+1);
-        printf("Hola soy el proceso 2\n");
-        encuentraCamino(N/2, N, 5);
-        impresionTablero(matrix);
-        pthread_mutex_unlock(cuadrantes+1);
-    }
-    
-    pthread_exit(NULL);
-}
-
-void * procesa_camino(void * arg)
-{
-    int id = (int) arg;
-    
-    if(id == 1)
-    {
         
         pthread_mutex_lock(cuadrantes+1);
         printf("Hola soy el proceso 1\n");
